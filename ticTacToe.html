@@ -1,0 +1,112 @@
+<html>
+<head>
+<title>Tic - Tac - Toe</title>
+<style>
+div img {height:99px; width:99px;}
+div {position: absolute;height:100px; width:100px; border:1px solid darkblue;}
+</style>
+<script>
+var p1="<img src=\"images/x.png\" >";
+var p2="<img src=\"images/o.png\" >";
+var k = 0;
+var rows = 3;
+var columns = 3;
+var images=[p1,p2];
+var matrix = [ [0,0,0], [0,0,0], [0,0,0] ];
+
+function grid(){
+  var newdiv, divIdName;
+
+  for(var i = 0; i < rows; i++){
+    for(var j = 0; j < columns; j++){
+      newdiv = document.createElement('div');
+      newdiv.setAttribute('posX', 0);
+      newdiv.setAttribute('posY', 0);
+      newdiv.posX = i;
+      newdiv.posY = j;
+      newdiv.style.top = 100 + (100*i) + 'px';
+      newdiv.style.left = 100 + (100*j) + 'px';
+      newdiv.addEventListener('click', function(){
+        play(this, this.posX, this.posY);
+      })
+      document.body.appendChild(newdiv);
+    }
+  }
+}
+
+function play(id, x, y){
+  var finished = false;
+  var validMove = false;
+
+  validMove = validMovement(x,y);
+  if(k == 0){
+    if(validMove){
+      id.innerHTML = images[k];
+      k = 1;
+      matrix[x][y] = 1;
+      finished = check(1);
+    } else {
+      k = 0;
+    }
+  } else {
+    if(validMove){
+      id.innerHTML = images[k];
+      k = 0;
+      matrix[x][y] = 2;
+      finished = check(2);
+    } else {
+      k = 1;
+    }
+  }
+  if(finished){
+    gameEnding(k);
+  }
+}
+
+function check(n){
+  var win = false;
+
+  for (var i = 0; i < rows; i++){
+    if(matrix[i][0] == n && matrix[i][1] == n && matrix[i][2] == n){
+      win = true;
+      break;
+    } else if(matrix[0][i] == n && matrix[1][i] == n && matrix[2][i] == n){
+      win = true;
+      break;
+    }
+  }
+  if(!win){
+    if(matrix[0][0] == n && matrix[1][1] == n && matrix[2][2] == n){
+      win = true;
+    }else if(matrix[0][2] == n && matrix[1][1] == n && matrix[2][0] == n){
+      win = true;
+    }
+  }
+  return win;
+}
+
+function validMovement(x, y){
+  var valid = true;
+
+  if(matrix[x][y] != 0){
+    valid = false;
+  }
+  return valid;
+}
+
+function gameEnding(playerId){
+  if(playerId == 1){
+    alert('X wins!');
+  } else {
+    alert('O wins!');
+  }
+}
+
+</script>
+</head>
+<body  onload="grid()";>
+  <form>
+  <input type="Button" value="Restart Game" onclick="document.location.reload();">
+</form>
+</body>
+</html>

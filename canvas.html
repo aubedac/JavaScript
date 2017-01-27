@@ -1,0 +1,178 @@
+<html>
+<head>
+<style>
+#canvas
+{
+    border:1px solid black;
+    width:500px;
+    height:500px;
+}
+</style>
+
+<script>
+var CANVAS_WIDTH = 500;
+var CANVAS_HEIGHT = 500;
+
+var canvas;
+var g;
+var renderCanvasInterval = null;
+var gameInterval = null;
+
+var ball = new Image();
+ball.src = "images/ball.png";
+var pitch = new Image();
+pitch.src = "images/canvasImage.png";
+var player = new Image();
+player.src = "images/player.png";
+var target = new Image();
+target.src = "images/pikachuSprite.png";
+
+var MAX_NUMBER_OF_SHOTS_ALLOWED = 3;
+var numberOfShots = 0;
+
+window.onload = onAllAssetsLoaded;
+function onAllAssetsLoaded(){
+    canvas = document.getElementById("canvas");
+    g = canvas.getContext("2d");
+    canvas.width = CANVAS_WIDTH;
+    canvas.height = CANVAS_HEIGHT;
+    setBatY(canvas.height - batHeight);
+    renderCanvas();
+    window.addEventListener('keydown', keydownHandler);
+    renderCanvasInterval = setInterval(renderCanvas, 10);
+}
+
+function renderCanvas(){
+    drawBackground();
+    drawBat();
+    if (bulletFiring){
+        drawBullet();
+    }
+    if (!targetDestroyed){
+        drawTarget();
+    } else {
+        drawWinScreen();
+        clearInterval(renderCanvasInterval);
+    }
+    if ((!targetDestroyed) && (numberOfShots < MAX_NUMBER_OF_SHOTS_ALLOWED)) {
+        drawScore();
+    } else if (numberOfShots >= MAX_NUMBER_OF_SHOTS_ALLOWED) {
+        drawLoseScreen();
+        clearInterval(gameInterval);
+        gameInterval = null;
+    }
+}
+
+function keydownHandler(e){
+    if (e.keyCode === 37)  // left
+    {
+        batX -= batSpeed;
+    }
+    else if (e.keyCode === 39) // right
+    {
+        batX += batSpeed;
+    }
+    else if (e.keyCode === 32) // space
+    {
+        if (bulletInterval === null){
+            bulletX = batX + batWidth / 2;
+            bulletY = batY;
+            bulletFiring = true;
+            bulletInterval = setInterval(moveBullet, 100 / bulletSpeed);
+        }
+    }
+}
+
+function drawWinScreen(){
+    drawBackground();
+    g.beginPath();
+    g.fillStyle = "black";
+    g.font = "100px Times Roman";
+    g.fillText("Catched!", 50, 250);
+    g.closePath();
+}
+
+function drawLoseScreen(){
+    drawBackground();
+    g.beginPath();
+    g.fillStyle = "red";
+    g.font = "30px Times Roman";
+    g.fillText("the wild pokemon ran away!", 40, 250);
+    g.closePath();
+}
+
+function drawScore(){
+    g.beginPath();
+    g.fillStyle = "black";
+    g.font = "30px Times Roman";
+    g.fillText("Shots: " + numberOfShots, 10, 30);
+    g.closePath();
+}
+
+var bulletX = 0;
+var bulletY = 0;
+var bulletWidth = 30;
+var bulletHeight = 30;
+var bulletSpeed = 100;
+var bulletColour = "red";
+function drawBullet()
+{
+    g.drawImage(ball, bulletX, bulletY, bulletWidth, bulletHeight);
+}
+
+var bulletInterval = null;
+var bulletFiring = false;
+function moveBullet(){
+    bulletY--;
+    if (bulletY <= 0){
+        clearInterval(bulletInterval);
+        bulletInterval = null;
+        bulletFiring = false;
+        numberOfShots++;
+    } else {
+        isTargetHit();
+    }
+}
+
+var batX = 0;
+var batY = 0;
+var batWidth = 100;
+var batHeight = 100;
+var batSpeed = 10;
+var batColour = "black";
+
+function drawBat(){
+    g.drawImage(player, batX, batY, batWidth, batHeight);
+}
+
+function setBatY(y){
+    batY = y;
+}
+
+var targetX = 180;
+var targetY = 0;
+var targetWidth = 100;
+var targetHeight = 100;
+var targetDestroyed = false;
+var targetColour = "green";
+
+function drawTarget(){
+    g.drawImage(target, targetX, targetY, targetWidth, targetHeight);
+}
+
+function isTargetHit(){
+    if ((bulletX >= targetX) && (bulletX <= (targetX + targetWidth)) && (bulletY >= targetY) && (bulletY <= (targetY + targetHeight))) {
+        targetDestroyed = true;
+    }
+}
+
+function drawBackground(){
+    g.drawImage(pitch, 0, 0, canvas.width, canvas.height);
+}
+</script>
+</head>
+<body>
+<canvas id = "canvas" tabindex="1">
+</canvas>
+</body>
+</html>

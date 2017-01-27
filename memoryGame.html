@@ -1,0 +1,143 @@
+
+<html>
+<head>
+<title> Memory Game </title>
+
+<style>
+  div img{
+    height: 99px;
+    width: 99px;
+  }
+  div {
+    position: absolute;
+    height: 100px;
+    width: 100px;
+  }
+</style>
+<script>
+var columns = 5;
+var rows = 4;
+
+function createDivs(){
+  var imgArray = ["images/ascorazon.jpg", "images/asoros.jpg", "images/aspicas.jpg", "images/asrombos.jpg", "images/astrebol.jpg",
+                  "images/batman.jpg", "images/reinacorazones.jpg", "images/reinapicas.jpg", "images/reycorazon.jpg", "images/reypicas.jpg"];
+  var counter = 0;
+  var newDiv, divIdName;
+  var idsArray = [];
+  var imgsArray = [];
+
+  for (var i = 0; i < rows; i++){
+    if (counter == (rows*columns)/2){
+      counter = 0;
+    }
+    for (var j = 0; j < columns; j++){
+      newDiv = document.createElement('div');
+      divIdName = 'a'+ i + j;
+      newDiv.setAttribute('id',divIdName);
+      newDiv.style.top = 100 + (100*i) + 'px';
+      newDiv.style.left = 100 + (100*j) + 'px';
+      newDiv.innerHTML = "<img src=" + imgArray[counter] + ">";
+      idsArray.push('a' + i + j);
+      imgsArray.push(newDiv.innerHTML);
+      newDiv.onclick = function(){
+        show(this, idsArray, imgsArray);
+      }
+      document.body.appendChild(newDiv);
+      counter++;
+    }
+  }
+}
+
+function hide(){
+  for (var i = 0; i < rows; i++){
+    for (var j = 0; j < columns; j++){
+      document.getElementById('a' + i + j).innerHTML = "<img src=\"images/cover.jpg\">";
+    }
+  }
+}
+
+function shuffle(){
+  var pLeft = [];
+  var pTop = [];
+  var s = [];
+  var idArray = [];
+
+  for (var i = 0; i < rows; i++){
+    for (var j = 0; j < columns; j++){
+      pLeft.push(document.getElementById('a' + i + j).style.left);
+      pTop.push(document.getElementById('a' + i + j).style.top);
+      s.push(0);
+      idArray.push('a' + i + j);
+    }
+  }
+  draw(idArray, pLeft, pTop, s);
+}
+
+function draw(idArray, pLeft, pTop, s){
+  var index = 0;
+  var k = 0;
+  var total = rows*columns;
+
+  while (k < total){
+    index = Math.floor(Math.random() * total);
+    card = document.getElementById(idArray[k]);
+    if (s[index] == 0){
+      card.style.top = pTop[index];
+      card.style.left = pLeft[index];
+      s[index] = 1;
+      k++;
+    }
+  }
+}
+
+var id1, id2;
+var k = 0;
+var counter = 0;
+
+function show(x, idsArray, imgsArray){
+
+  if(k == 0){
+    id1 = x;
+    hide();
+    for(var i = 0; i < idsArray.length; i++){
+      if( x == document.getElementById(idsArray[i])){
+        x.innerHTML = imgsArray[i];
+      }
+    }
+    k = 1;
+  } else {
+    id2 = x;
+    for(var i = 0; i < idsArray.length; i++){
+      if(x == document.getElementById(idsArray[i])){
+        x.innerHTML = imgsArray[i];
+      }
+    }
+    if(id1.innerHTML == id2.innerHTML){
+      if(id1 != id2){
+        id1.style.visibility = 'hidden';
+        id2.style.visibility = 'hidden';
+        counter = counter + 1;
+        console.log(counter);
+      }
+    }
+    k = 0;
+  }
+  if(counter == (columns*rows/2)){
+    win();
+  }
+}
+
+function win(){
+  alert("Congratulations! You've won! Reload the page for playing again.");
+}
+
+</script>
+</head>
+<body onload="createDivs()">
+  <form>
+    <input type="button" value="Restart Game" onclick="document.location.reload();">
+    <input type="button" value="Shuffle" onclick="shuffle()">
+    <input type="button" value="Hide" onclick="hide()">
+  </form>
+</body>
+</html>

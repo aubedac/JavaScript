@@ -1,0 +1,174 @@
+<html>
+<head>
+  <title> Othello </title>
+<style>
+  div img{
+    height: 99px;
+    width: 99px;
+  }
+  div{
+    position: absolute;
+    height: 100px;
+    width: 100px;
+    border: 1px solid black;
+  }
+</style>
+<script>
+var rows = 6;
+var columns = 6;
+var img1 = "<img src=\"images/fblack.png\" >";
+var img2 = "<img src=\"images/fred.png\" >";
+var images = [img1, img2];
+var matrix = new Array(rows);
+var k = 0;
+var dirs = [[1,0], [0,1], [-1,0], [0,-1], [1,1], [-1,1], [1,-1], [-1,-1]];
+
+function grid(){
+  var newdiv, divIdName;
+
+  for(var i = 0; i < rows; i++){
+    for(var j = 0; j < columns; j++){
+      matrix[i] = new Array(columns);
+      newdiv = document.createElement('div');
+      divIdName = 'a' + j + i;
+      newdiv.setAttribute('id', divIdName);
+      newdiv.setAttribute('posX', 0);
+      newdiv.setAttribute('posY', 0);
+      newdiv.posX = j;
+      newdiv.posY = i;
+      newdiv.style.top = 100 + (100*i) + 'px';
+      newdiv.style.left = 100 + (100*j) + 'px';
+      newdiv.addEventListener('click', function(){
+        play(this, this.posX, this.posY);
+      })
+      document.body.appendChild(newdiv);
+      if(i == 2 && j == 2){
+        var divBlack1 = newdiv;
+      }else if (i == 2 && j == 3){
+        var divRed1 = newdiv;
+      }else if (i == 3 && j == 2){
+        var divRed2 = newdiv;
+      }else if (i == 3 && j == 3){
+        var divBlack2 = newdiv;
+      }
+    }
+  }
+  setGame(divRed1, divRed2, divBlack2, divBlack1);
+}
+
+function setGame(id1, id2, id3, id4){
+  for(var i = 0; i < rows; i++){
+    for(var j = 0; j < columns; j++){
+      if((i == 2 && j == 3) || (i == 3 && j == 2)){
+        matrix[i][j] = 2;
+      } else if ((i == 2 && j == 2) || (i == 3 && j == 3)){
+        matrix[i][j] = 1;
+      }else{
+        matrix[i][j] = 0;
+      }
+    }
+  }
+  counterRed = 2;
+  counterBlack = 2;
+  id1.innerHTML = images[1];
+  id2.innerHTML = images[1];
+  id3.innerHTML = images[0];
+  id4.innerHTML = images[0];
+  count();
+}
+
+function play(id, x, y){
+  x = parseInt(x);
+  y = parseInt(y);
+  if (flip(k + 1, x, y) > 0){
+    matrix[x][y] = k + 1;
+    id.innerHTML = images[k];
+    k = 1 - k;
+  }
+  count();
+}
+
+function showScore(){
+  scoreText.text = "Score Red: " + counterRed + "\n" + "Score Black: " + counterBlack ;
+}
+
+function count(){
+  var counterRed = 0;
+  var counterBlack = 0;
+
+  for(var i = 0; i < rows; i++){
+    for(var j = 0; j < columns; j++){
+      if(matrix[i][j] == 1){
+        counterBlack++;
+      } else if(matrix[i][j] == 2){
+        counterRed++;
+      }
+    }
+  }
+  var printRed = document.getElementById('scoreRed');
+  var printBlack = document.getElementById('scoreBlack');
+  printRed.innerHTML = counterRed;
+  printBlack.innerHTML = counterBlack;
+  if(isFullTable()){
+    if(counterBlack > counterRed){
+      alert("Black wins! Reload page for playing again");
+    } else {
+      alert("Red wins! Reload page for playing again");
+    }
+  }
+}
+
+function isFullTable(){
+  var empty = false;
+
+  for(var i = 0; i < rows; i++){
+    for(var j = 0; j < columns; j++){
+      if(matrix[i][j] == 0){
+        empty = false;
+        break;
+      } else {
+        empty = true;
+      }
+    }
+  }
+  return (empty);
+}
+
+function flip(n, x, y){
+  var flipped = 0;
+  for(var k = 0; k < 8; k++){
+    var end = -1;
+    var id;
+
+    deltaX = dirs[k][0];
+    deltaY = dirs[k][1];
+    for(var i = 1; x+deltaX*i < rows && x+deltaX*i >= 0 && y+deltaY*i < columns && y+deltaY*i >= 0; i++){
+      if(matrix[x+deltaX*i][y+deltaY*i] == n){
+        end = i;
+        break;
+      } else if (matrix[x+deltaX*i][y+deltaY*i] == 0){
+        break;
+      }
+    }
+    if(end != -1){
+      for(var i = 1; i < end; i++){
+        var auxX = x+deltaX*i;
+        var auxY = y+deltaY*i;
+        id = document.getElementById('a' + auxX + auxY);
+        id.innerHTML = images[n - 1];
+        matrix[auxX][auxY] = n;
+        flipped++;
+      }
+    }
+  }
+  return(flipped);
+}
+
+</script>
+
+</head>
+<body onload="grid()">
+  <div id="scoreRed" style="position: absolute; left: 0%; top: 15.1%; color: red; font-size: 60px;"></div>
+  <div id="scoreBlack" style="position: absolute; left: 0%; top: 30%; color: black; font-size: 60px;"></div>
+</body>
+</html>
